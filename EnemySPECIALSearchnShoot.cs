@@ -1,26 +1,25 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 
-public class EnemySearchnShoot : MonoBehaviour
+public class EnemySPECIALSearchnShoot : MonoBehaviour
 {
     private GameObject player;
 
     [SerializeField] private GameObject bullet;
     [SerializeField] private float bulletSpeed;
     [SerializeField] private float minPlayerDistance;
+    [SerializeField] private float timeBetweenBullets;
 
     private const float MAX_SHOOTING_TIME = 2.5f;
     private const float MIN_SHOOTING_TIME = 1.5f;
 
     private float timeToShoot;
-    private Vector2 shootPosition;
-    
-
     private bool ableToShoot;
-    private float timer;
+    private float timerBullets;
+    private float timerShoot;
     private Vector2 direction;
 
-
+    bool firstBulletShot = false;
+    bool secondBulletShot = false;
 
     void Start()
     {
@@ -35,12 +34,15 @@ public class EnemySearchnShoot : MonoBehaviour
         Search(direction);
 
         if (ableToShoot) { Shoot(direction); }
-        timer += Time.deltaTime;
-        if (timer >= timeToShoot)
+        else
         {
-            ableToShoot = true;
-            timer = 0;
-            timeToShoot = Random.Range(MIN_SHOOTING_TIME, MAX_SHOOTING_TIME);
+            timerShoot += Time.deltaTime;
+            if (timerShoot >= timeToShoot)
+            {
+                ableToShoot = true;
+                timerShoot = 0;
+                timeToShoot = Random.Range(MIN_SHOOTING_TIME, MAX_SHOOTING_TIME);
+            }
         }
     }
 
@@ -69,13 +71,42 @@ public class EnemySearchnShoot : MonoBehaviour
 
     private void Shoot(Vector2 direction)
     {
-        shootPosition = gameObject.transform.GetChild(0).transform.position;
+        Vector2 shootPosition1 = gameObject.transform.GetChild(0).transform.position;
+        Vector2 shootPosition2 = gameObject.transform.GetChild(1).transform.position;
+        Vector2 shootPosition3 = gameObject.transform.GetChild(2).transform.position;
+
+        Vector2 shootDirection1 = (shootPosition1 - (Vector2)transform.position).normalized;
+        Vector2 shootDirection2 = (shootPosition2 - (Vector2)transform.position).normalized;
+        Vector2 shootDirection3 = (shootPosition3 - (Vector2)transform.position).normalized;
+
+        timerBullets += Time.deltaTime;
+        if ((timerBullets < timeBetweenBullets) && !firstBulletShot)
+        {
+            SpawnBullet(shootDirection1, shootPosition1);
+            firstBulletShot = true;
+        }
+        else if ((timerBullets >= timeBetweenBullets) && (timerBullets < timeBetweenBullets * 2) && !secondBulletShot)
+        {
+            SpawnBullet(shootDirection2, shootPosition2);
+            secondBulletShot = true;
+        }
+        else if (timerBullets >= timeBetweenBullets * 2)
+        {
+            firstBulletShot = false;
+            secondBulletShot = false;
+            SpawnBullet(shootDirection3, shootPosition3);
+            ableToShoot = false;
+            timerBullets = 0;
+        }
+
+    }
+
+    private void SpawnBullet(Vector2 direction, Vector2 position)
+    {
 
         GameObject actualBullet = Instantiate(bullet);
-        actualBullet.transform.position = shootPosition;
+        actualBullet.transform.position = position;
         actualBullet.GetComponent<Rigidbody2D>().velocity = direction * bulletSpeed;
         actualBullet.transform.localRotation = gameObject.transform.localRotation;
-
-        ableToShoot = false;
     }
 }

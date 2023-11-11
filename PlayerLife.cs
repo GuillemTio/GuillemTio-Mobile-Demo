@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerLife : MonoBehaviour
 {
@@ -38,8 +39,7 @@ public class PlayerLife : MonoBehaviour
 
         if (lifeCounter <= 0)
         {
-            Destroy(gameObject);
-            Destroy(GameObject.Find("Joysticks"));
+            SceneManager.LoadScene("GameplayScene");
         }
     }
 
@@ -49,6 +49,10 @@ public class PlayerLife : MonoBehaviour
         if (gameObjectName == "CommonBullet(Clone)")
         {
             GotHit(0);
-        } 
+        }
+        else if (gameObjectName == "SpecialBullet(Clone)")
+        {
+            GotHit(0);
+        }
     }
 }

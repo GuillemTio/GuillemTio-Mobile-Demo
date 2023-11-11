@@ -50,7 +50,7 @@ public class BulletDestroy : MonoBehaviour
         {
             hit = true; //doublecheck
         }
-        else
+        else if (collision.collider.tag != "Enemy")
         {
             Destroy(gameObject);
         }
